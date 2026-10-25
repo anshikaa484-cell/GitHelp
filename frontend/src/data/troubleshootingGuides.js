@@ -1,0 +1,32 @@
+// Curated guides. `danger: true` on a step means the command can destroy work.
+export const GUIDE_CATEGORIES = ["All", "Merging", "Remote", "Undo", "Setup"];
+
+export const GUIDES = [
+  { id: "merge-conflict", category: "Merging", title: "Merge conflict", problem: "Git stops a merge or pull and says CONFLICT (content): Merge conflict in <file>.", cause: "Two branches changed the same lines of the same file, so Git cannot choose for you.",
+    steps: [{ text: "See which files are in conflict.", cmd: "git status" }, { text: "Open each file, keep the code you want, and delete the <<<<<<<, ======= and >>>>>>> marker lines." }, { text: "Stage the resolved file.", cmd: "git add <file>" }, { text: "Finish the merge.", cmd: "git commit" }, { text: "Changed your mind? Abort the merge and go back to before it started.", cmd: "git merge --abort" }],
+    prevention: "Pull often, keep branches short-lived, and talk to teammates before editing the same file." },
+  { id: "auth-failed", category: "Remote", title: "Authentication failed", problem: "remote: Support for password authentication was removed, or fatal: Authentication failed.", cause: "GitHub no longer accepts your account password for Git over HTTPS. You need a personal access token (PAT) or SSH key.",
+    steps: [{ text: "Create a personal access token in GitHub: Settings > Developer settings > Personal access tokens." }, { text: "Use the token instead of your password when Git asks, or let a credential helper store it.", cmd: "git config --global credential.helper store" }, { text: "Or switch to SSH and update the remote URL.", cmd: "git remote set-url origin git@github.com:<user>/<repo>.git" }],
+    prevention: "Use a credential manager or SSH keys, and never paste tokens into your code or commit them." },
+  { id: "push-rejected", category: "Remote", title: "Push rejected (non-fast-forward)", problem: "! [rejected] main -> main (fetch first) or non-fast-forward.", cause: "The remote has commits you do not have locally, so Git will not overwrite them.",
+    steps: [{ text: "Download and combine the remote work.", cmd: "git pull origin main" }, { text: "Resolve any conflicts, then push again.", cmd: "git push origin main" }, { text: "Avoid git push --force on shared branches. It overwrites teammates' commits.", cmd: "git push --force-with-lease", danger: true }],
+    prevention: "Run git pull before you start work and before you push." },
+  { id: "uncommitted", category: "Undo", title: "Uncommitted changes block a switch or pull", problem: "error: Your local changes would be overwritten by checkout/merge.", cause: "You have edits that conflict with the branch you are moving to.",
+    steps: [{ text: "Safest: commit your work.", cmd: "git add .\ngit commit -m \"WIP\"" }, { text: "Or shelve it temporarily and bring it back later.", cmd: "git stash\ngit switch <branch>\ngit stash pop" }, { text: "Only if you want to throw the edits away for good. This cannot be undone.", cmd: "git restore <file>", danger: true }],
+    prevention: "Commit or stash before switching branches or pulling." },
+  { id: "detached-head", category: "Undo", title: "Detached HEAD", problem: "You are in 'detached HEAD' state.", cause: "You checked out a commit, tag or remote branch directly, so HEAD points at a commit instead of a branch.",
+    steps: [{ text: "If you made no changes, go back to your branch.", cmd: "git switch main" }, { text: "If you made commits you want to keep, put them on a new branch.", cmd: "git switch -c rescue-work" }],
+    prevention: "Use git switch <branch> for branches, and create a branch before experimenting on an old commit." },
+  { id: "wrong-remote", category: "Remote", title: "Wrong remote URL", problem: "fatal: repository not found, or you are pushing to the wrong project.", cause: "The origin remote points to a typo, an old repository or someone else's fork.",
+    steps: [{ text: "Check the current URLs.", cmd: "git remote -v" }, { text: "Point origin to the correct URL.", cmd: "git remote set-url origin https://github.com/<user>/<repo>.git" }, { text: "Test the connection.", cmd: "git fetch origin" }],
+    prevention: "Copy the URL from the green Code button on GitHub instead of typing it." },
+  { id: "unstage", category: "Undo", title: "Accidentally staged a file", problem: "A file you did not want is listed under Changes to be committed.", cause: "git add . stages everything in the folder, including files you meant to leave out.",
+    steps: [{ text: "Unstage the file. Your edits stay in the file.", cmd: "git restore --staged <file>" }, { text: "Add it to .gitignore if it should never be tracked (build output, .env, node_modules)." }, { text: "Already committed it by mistake? Undo the commit but keep the changes (only if not pushed).", cmd: "git reset --soft HEAD~1" }],
+    prevention: "Run git status before git commit, and add a .gitignore early." },
+  { id: "fetch-vs-pull", category: "Remote", title: "git fetch or git pull?", problem: "You are not sure which command to use to get the latest changes.", cause: "They look similar but do different amounts of work.",
+    steps: [{ text: "git fetch only downloads new commits. Your files do not change.", cmd: "git fetch origin" }, { text: "Review what arrived.", cmd: "git log HEAD..origin/main --oneline" }, { text: "git pull is fetch plus merge in one step.", cmd: "git pull origin main" }],
+    prevention: "Use fetch when you want to look first, pull when you just want to catch up." },
+  { id: "identity", category: "Setup", title: "Please tell me who you are", problem: "Author identity unknown when you commit.", cause: "Git does not know your name and email yet.",
+    steps: [{ text: "Set them once for every repository on this computer.", cmd: "git config --global user.name \"Your Name\"\ngit config --global user.email \"you@example.com\"" }],
+    prevention: "Use the same email as your GitHub account so commits link to your profile." },
+];
